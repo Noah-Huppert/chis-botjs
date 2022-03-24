@@ -1,6 +1,5 @@
 const { REST } = require("@discordjs/rest");
 const { Routes } = require("discord-api-types/v9");
-const { Client, Intents } = require("discord.js");
 const fs = require("node:fs");
 const dotenv = require("dotenv");
 
@@ -11,6 +10,7 @@ const clientId = process.env.CLIENT_ID;
 const guildId = process.env.GUILD_ID;
 
 // Load Commands
+
 const commands = [];
 const commandFiles = fs
   .readdirSync("./commands")
@@ -18,7 +18,9 @@ const commandFiles = fs
 
 for (const file of commandFiles) {
   const command = require(`./commands/${file}`);
-  commands.push(command.data.toJSON());
+  if (command.stable) {
+    commands.push(command.data.toJSON());
+  }
 }
 
 const rest = new REST({ version: "9" }).setToken(token);
@@ -27,34 +29,25 @@ const rest = new REST({ version: "9" }).setToken(token);
   try {
     console.log("Started refreshing application (/) commands.");
 
-    // Development Guild Commands
-    await rest.put(Routes.applicationGuildCommands(clientId, guildId), {
-      body: commands,
+    // Global Application Commands
+
+    rest.get(Routes.applicationCommands(clientId, guildId)).then((data) => {
+      const promises = [];
+      for (const command of data) {
+        const deleteUrl = `${Routes.applicationCommands(clientId, guildId)}/${
+          command.id
+        }`;
+        promises.push(rest.delete(deleteUrl));
+      }
+      return Promise.all(promises);
     });
+
+    if (commands.length) {
+      await rest.put(Routes.applicationCommands(clientId), { body: commands });
+    }
 
     console.log("Successfully reloaded application (/) commands.");
   } catch (error) {
     console.error(error);
   }
 })();
-
-// Initialize Bot
-const client = new Client({ intents: [Intents.FLAGS.GUILDS] });
-
-// Log into Discord
-client.on("ready", () => {
-  console.log(`Logged in as ${client.user.tag}!`);
-});
-
-// Interaction Event Listener
-client.on("interactionCreate", async (interaction) => {
-  if (!interaction.isCommand()) return;
-
-  if (
-    commands.map((command) => command.name).includes(interaction.commandName)
-  ) {
-    require(`./commands/${interaction.commandName}.js`).run(interaction);
-  }
-});
-
-client.login(process.env.DISCORD_TOKEN);

@@ -50,9 +50,7 @@ client.on("ready", () => {
 client.on("interactionCreate", async (interaction) => {
   if (!interaction.isCommand()) return;
 
-  if (
-    commands.map((command) => command.name).includes(interaction.commandName)
-  ) {
+  if (commandFiles.includes(`${interaction.commandName}.js`)) {
     require(`./commands/${interaction.commandName}.js`).run(interaction);
   }
 });

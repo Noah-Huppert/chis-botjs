@@ -1,4 +1,6 @@
-FROM node:latest
+FROM docker:latest
+
+RUN apk add --update npm 
 
 WORKDIR /bot
 
@@ -7,4 +9,4 @@ RUN npm install
 
 COPY . /bot
 
-CMD ["node", "bot.js"]
+ENTRYPOINT ["node", "bot.js"]

@@ -42,8 +42,26 @@ const rest = new REST({ version: "9" }).setToken(token);
 const client = new Client({ intents: [Intents.FLAGS.GUILDS] });
 
 // Log into Discord
-client.on("ready", () => {
+client.on("ready", async () => {
   console.log(`Logged in as ${client.user.tag}!`);
+
+  if (!client.application?.owner) await client.application?.fetch();
+
+  // console.log(await client.guilds.cache.get(guildId)?.commands.fetch());
+
+  const command = await client.guilds.cache
+    .get(guildId)
+    ?.commands.fetch("956652066166685697");
+
+  const permissions = [
+    {
+      id: "957112569435402250",
+      type: "ROLE",
+      permission: true,
+    },
+  ];
+
+  await command.permissions.set({ permissions });
 });
 
 // Interaction Event Listener

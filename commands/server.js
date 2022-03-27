@@ -9,6 +9,7 @@ const stable = false;
 const data = new SlashCommandBuilder()
   .setName("server")
   .setDescription("Start/stop a service on [server.chis.dev]")
+  .setDefaultPermission(false)
   .addStringOption((option) =>
     option
       .setName("service")
@@ -26,33 +27,30 @@ const data = new SlashCommandBuilder()
       .addChoice("Stop", "stop")
   );
 
-// Embedded Message Reply (default will change soon)
-const exampleEmbed = new MessageEmbed()
-  .setColor("#0099ff")
-  .setTitle("Some title")
-  .setURL("https://discord.js.org/")
-  .setAuthor({
-    name: "Some name",
-    iconURL: "https://i.imgur.com/AfFp7pu.png",
-    url: "https://discord.js.org",
-  })
-  .setDescription("Some description here")
-  .setThumbnail("https://i.imgur.com/AfFp7pu.png")
-  .addFields(
-    { name: "Regular field title", value: "Some value here" },
-    { name: "\u200B", value: "\u200B" },
-    { name: "Inline field title", value: "Some value here", inline: true },
-    { name: "Inline field title", value: "Some value here", inline: true }
-  )
-  .addField("Inline field title", "Some value here", true)
-  .setImage("https://i.imgur.com/AfFp7pu.png")
-  .setTimestamp()
-  .setFooter({
-    text: "Some footer text here",
-    iconURL: "https://i.imgur.com/AfFp7pu.png",
-  });
+// Embedded Message Reply
+function embed(service, state) {
+  return new MessageEmbed()
+    .setColor("#FFC0CB")
+    .setTitle("Game Servers")
+    .setURL("https://chis.dev/?category=server")
+    .setAuthor({
+      name: "Chis Bot",
+      iconURL:
+        "https://cdn.discordapp.com/app-icons/724657775652634795/22a8bc7ffce4587048cb74b41d2a7363.png?size=512",
+      url: "https://chis.dev/chis-bot/",
+    })
+    .setDescription("Thank you for using my bot :)")
+    .addField("Service", service, true)
+    .addField("Request", state, true)
+    .setTimestamp()
+    .setFooter({
+      text: "server.chis.dev",
+      iconURL:
+        "https://cdn.discordapp.com/avatars/219152343588012033/4c7053ce4c177cdab007d986c47b9410.webp?size=512",
+    });
+}
 
-// Interaction Event Action
+// On Interaction Event
 async function run(interaction) {
   const state = interaction.options.getString("state");
   const service = interaction.options.getString("service");
@@ -71,7 +69,7 @@ async function run(interaction) {
     console.log(`stdout: ${stdout}`);
   });
   await interaction.reply({
-    embeds: [exampleEmbed],
+    embeds: [embed(service, state)],
     ephemeral: true,
   });
 }

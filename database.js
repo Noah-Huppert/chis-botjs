@@ -111,7 +111,7 @@ class Database {
     console.log("Connection has been established successfully.");
 
     // Refresh Table (change to true to clear all data)
-    if (develop) {
+    if (parseInt(develop)) {
       await sequelize.sync({ force: true });
     } else {
       await sequelize.sync({ force: false });

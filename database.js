@@ -7,6 +7,7 @@ const db = process.env.POSTGRES_DB;
 const user = process.env.POSTGRES_USER;
 const pass = process.env.POSTGRES_PASSWORD;
 const host = process.env.POSTGRES_HOST;
+const develop = process.env.DEVELOP;
 
 // Configure Database
 const sequelize = new Sequelize(db, user, pass, {
@@ -110,11 +111,13 @@ class Database {
     console.log("Connection has been established successfully.");
 
     // Refresh Table (change to true to clear all data)
-    await sequelize.sync({ force: true });
+    if (develop) {
+      await sequelize.sync({ force: true });
+    } else {
+      await sequelize.sync({ force: false });
+    }
+
     // Add database test commands here
-    // const data = new Database("853753727847628841");
-    // const plan = await data.read();
-    // console.log(plan.toJSON());
   } catch (error) {
     console.error("Unable to connect to the database:", error);
   }

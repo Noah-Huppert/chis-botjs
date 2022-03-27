@@ -1,9 +1,21 @@
 version: "3.7"
 services:
-  dev:
+  bot:
     build:
       context: .
       dockerfile: Dockerfile
+    container_name: "chis-bot"
     restart: unless-stopped
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
+    depends_on:
+      - "database"
+  database:
+    image: "postgres:alpine"
+    container_name: "postgres"
+    env_file:
+      - database.env
+    # volumes:
+    #   - ./data:/var/lib/postgresql/data/
+    ports:
+      - "5432:5432"

@@ -3,7 +3,7 @@ const { MessageEmbed } = require("discord.js");
 const { exec } = require("child_process");
 
 // Production Ready flag
-const stable = false;
+const stable = true;
 
 // Slash Command
 const data = new SlashCommandBuilder()

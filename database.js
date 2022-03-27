@@ -2,7 +2,7 @@ const Sequelize = require("sequelize");
 const dotenv = require("dotenv");
 
 // Environment Vars
-dotenv.config({ path: `database.env` });
+dotenv.config();
 const db = process.env.POSTGRES_DB;
 const user = process.env.POSTGRES_USER;
 const pass = process.env.POSTGRES_PASSWORD;

@@ -6,7 +6,7 @@
   "configurations": [
     {
       "name": "Api",
-      "program": "${workspaceFolder}/app.js",
+      "program": "${workspaceFolder}/api.js",
       "request": "launch",
       "skipFiles": ["<node_internals>/**"],
       "type": "pwa-node"

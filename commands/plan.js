@@ -3,12 +3,12 @@ const { MessageEmbed } = require("discord.js");
 const { Database } = require("../database");
 const { embed } = require("../utils");
 
-const stable = false;
+const stable = true;
 
 // Slash Command
 const data = new SlashCommandBuilder()
   .setName("plan")
-  .setDescription("Create the plan")
+  .setDescription("Create a plan (This will overwrite any existing plans)")
   .addStringOption((option) =>
     option
       .setName("title")
@@ -24,7 +24,6 @@ const data = new SlashCommandBuilder()
 
 // On Interaction Event
 async function run(interaction) {
-  const user = interaction.user;
   const title =
     interaction.options.getString("title") ||
     ":notebook_with_decorative_cover: Game Plan";
@@ -33,10 +32,9 @@ async function run(interaction) {
   // Establish Connection To Database
   const data = new Database(interaction.guild.id);
 
-  // Join Plan
-  data.create(title, spots).then(async (plan) => {
-    if (plan) {
-      // Delete Previous Message
+  // Delete Previous Message
+  data.read().then(async (plan) => {
+    if (plan)
       interaction.guild.channels
         .fetch(plan.channelId)
         .then(async (channel) => {
@@ -52,30 +50,20 @@ async function run(interaction) {
         .catch((error) => {
           console.error(error);
         });
+  });
 
-      // Send Embed
-      await interaction.reply({
-        embeds: [embed(plan.title, plan.spots, plan.participants)],
-        ephemeral: false,
-      });
+  // Join Plan
+  data.create(title, spots).then(async (plan) => {
+    // Send Embed
+    await interaction.reply({
+      embeds: [embed(plan.title, plan.spots, plan.participants)],
+      ephemeral: false,
+    });
 
-      // Save Last Message
-      interaction.fetchReply().then(async (message) => {
-        console.log(message);
-        await data.lastMessage(message.channelId, message.id);
-      });
-    } else {
-      // Send Error Embed
-      await interaction.reply({
-        embeds: [
-          new MessageEmbed()
-            .setColor("RED")
-            .setTitle(":warning: Warning")
-            .setDescription("Plan not created."),
-        ],
-        ephemeral: true,
-      });
-    }
+    // Save Last Message
+    interaction.fetchReply().then(async (message) => {
+      await data.lastMessage(message.channelId, message.id);
+    });
   });
 }
 

@@ -9,6 +9,8 @@ dotenv.config();
 const token = process.env.DISCORD_TOKEN;
 const clientId = process.env.CLIENT_ID;
 const guildId = process.env.GUILD_ID;
+const accessRole = process.env.ROLE_ID;
+const develop = process.env.DEVELOP;
 
 // Load Commands
 const commands = [];
@@ -18,7 +20,7 @@ const commandFiles = fs
 
 for (const file of commandFiles) {
   const command = require(`./commands/${file}`);
-  commands.push(command.data.toJSON());
+  if (command.stable || parseInt(develop)) commands.push(command.data.toJSON());
 }
 
 const rest = new REST({ version: "9" }).setToken(token);
@@ -27,10 +29,17 @@ const rest = new REST({ version: "9" }).setToken(token);
   try {
     console.log("Started refreshing application (/) commands.");
 
-    // Development Guild Commands
-    await rest.put(Routes.applicationGuildCommands(clientId, guildId), {
-      body: commands,
-    });
+    if (parseInt(develop)) {
+      // Guild Commands (testing)
+      await rest.put(Routes.applicationGuildCommands(clientId, guildId), {
+        body: commands,
+      });
+    } else {
+      // Application Commands (production)
+      await rest.put(Routes.applicationCommands(clientId), {
+        body: commands,
+      });
+    }
 
     console.log("Successfully reloaded application (/) commands.");
   } catch (error) {
@@ -45,23 +54,27 @@ const client = new Client({ intents: [Intents.FLAGS.GUILDS] });
 client.on("ready", async () => {
   console.log(`Logged in as ${client.user.tag}!`);
 
+  // Fetch Application
   if (!client.application?.owner) await client.application?.fetch();
 
-  // console.log(await client.guilds.cache.get(guildId)?.commands.fetch());
-
-  const command = await client.guilds.cache
-    .get(guildId)
-    ?.commands.fetch("956652066166685697");
-
-  const permissions = [
-    {
-      id: "957112569435402250",
-      type: "ROLE",
-      permission: true,
-    },
-  ];
-
-  await command.permissions.set({ permissions });
+  // Set Role For Server Command
+  client.application.commands.fetch().then(async (commands) => {
+    commands.forEach(async (command) => {
+      if (command.name == "server") {
+        await client.application.commands.permissions.set({
+          guild: guildId,
+          command: command.id,
+          permissions: [
+            {
+              id: accessRole,
+              type: "ROLE",
+              permission: true,
+            },
+          ],
+        });
+      }
+    });
+  });
 });
 
 // Interaction Event Listener

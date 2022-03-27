@@ -3,7 +3,7 @@ const { MessageEmbed } = require("discord.js");
 const { Database } = require("../database");
 const { embed } = require("../utils");
 
-const stable = false;
+const stable = true;
 
 // Slash Command
 const data = new SlashCommandBuilder()

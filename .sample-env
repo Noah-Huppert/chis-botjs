@@ -6,9 +6,10 @@ ROLE_ID=
 DEVELOP=0
 
 # Database
-POSTGRES_DB=
-POSTGRES_USER=
-POSTGRES_PASSWORD=
+DATABASE=chisbot
+POSTGRES_USER=username
+POSTGRES_PASSWORD=password
+POSTGRES_MULTIPLE_DATABASES="chisbot","chisbotdev"
 
 # Develop: localhost, Production: database
 POSTGRES_HOST=localhost 

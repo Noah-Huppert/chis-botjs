@@ -26,7 +26,7 @@ function embed(title, spots, participants) {
     });
 }
 
-const services = ["7dtd", "valheim", "minecraft"];
+const services = ["7dtd", "valheim", "minecraft", "csgo"];
 
 async function changeStatus(client) {
   // Wait for Docker Service To Start/Stop

@@ -19,6 +19,7 @@ const data = new SlashCommandBuilder()
       .addChoice("7 Days to Die", "7dtd")
       .addChoice("Valheim", "valheim")
       .addChoice("Minecraft", "minecraft")
+      .addChoice("CS:GO Bhop", "csgo")
   )
   .addStringOption((option) =>
     option

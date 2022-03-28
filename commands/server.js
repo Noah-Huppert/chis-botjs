@@ -18,6 +18,7 @@ const data = new SlashCommandBuilder()
       .setRequired(true)
       .addChoice("7 Days to Die", "7dtd")
       .addChoice("Valheim", "valheim")
+      .addChoice("Minecraft", "minecraft")
   )
   .addStringOption((option) =>
     option

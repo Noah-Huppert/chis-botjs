@@ -1,4 +1,5 @@
 const { MessageEmbed } = require("discord.js");
+const { exec } = require("child_process");
 
 function embed(title, spots, participants) {
   var mention = "No one has joined the plan.";
@@ -25,4 +26,24 @@ function embed(title, spots, participants) {
     });
 }
 
+const services = ["7dtd", "valheim"];
+
+async function changeStatus(client) {
+  // Wait for Docker Service To Start/Stop
+  const delay = (ms) => new Promise((res) => setTimeout(res, ms));
+  await delay(11000);
+
+  exec(
+    `docker ps --format "table {{.Names}}" | grep -w '${services.join("\\|")}'`,
+    (error, stdout, stderr) => {
+      if (stdout.length) {
+        client.user.setStatus("online");
+      } else {
+        client.user.setStatus("idle");
+      }
+    }
+  );
+}
+
 exports.embed = embed;
+exports.changeStatus = changeStatus;

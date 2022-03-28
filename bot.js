@@ -3,6 +3,7 @@ const { Routes } = require("discord-api-types/v9");
 const { Client, Intents } = require("discord.js");
 const fs = require("node:fs");
 const dotenv = require("dotenv");
+const { changeStatus } = require("./utils");
 
 // Environment Vars
 dotenv.config();
@@ -54,6 +55,9 @@ const client = new Client({ intents: [Intents.FLAGS.GUILDS] });
 client.on("ready", async () => {
   console.log(`Logged in as ${client.user.tag}!`);
 
+  // Initial Running Service Check
+  await changeStatus(client);
+
   // Fetch Application
   if (!client.application?.owner) await client.application?.fetch();
 
@@ -87,3 +91,10 @@ client.on("interactionCreate", async (interaction) => {
 });
 
 client.login(process.env.DISCORD_TOKEN);
+
+// Check Running Services Every Hour
+var checkminutes = 60;
+var checkthe_interval = checkminutes * 60 * 1000;
+setInterval(async function () {
+  await changeStatus(client);
+}, checkthe_interval);

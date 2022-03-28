@@ -1,6 +1,7 @@
 const { SlashCommandBuilder } = require("@discordjs/builders");
 const { MessageEmbed } = require("discord.js");
 const { exec } = require("child_process");
+const { changeStatus } = require("../utils");
 
 // Production Ready flag
 const stable = true;
@@ -72,6 +73,9 @@ async function run(interaction) {
     embeds: [embed(service, state)],
     ephemeral: true,
   });
+
+  // Check Status of Services
+  await changeStatus(interaction.client);
 }
 
 exports.stable = stable;

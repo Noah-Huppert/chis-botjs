@@ -16,11 +16,11 @@ const develop = process.env.DEVELOP;
 // Load Commands
 const commands = [];
 const commandFiles = fs
-  .readdirSync("./commands")
+  .readdirSync(`${__dirname}/commands`)
   .filter((file) => file.endsWith(".js"));
 
 for (const file of commandFiles) {
-  const command = require(`./commands/${file}`);
+  const command = require(`${__dirname}/commands/${file}`);
   if (command.stable || parseInt(develop)) commands.push(command.data.toJSON());
 }
 

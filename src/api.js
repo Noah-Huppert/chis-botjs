@@ -15,7 +15,7 @@ const rest = new REST({ version: "9" }).setToken(token);
 // Command Files
 const commands = [];
 const commandFiles = fs
-  .readdirSync("./commands")
+  .readdirSync(`${__dirname}/commands`)
   .filter((file) => file.endsWith(".js"));
 
 // Load Commands

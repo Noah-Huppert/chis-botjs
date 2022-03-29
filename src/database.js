@@ -95,6 +95,16 @@ class Database {
     plan.participants = participants.filter((u) => u != user);
     return await this.update(plan);
   }
+
+  async rename(title) {
+    const plan = await this.read();
+    if (!plan) return;
+
+    plan.title = title;
+
+    return await this.update(plan);
+  }
+
   async lastMessage(channelId, messageId) {
     const plan = await this.read();
     if (!plan) return;
@@ -105,6 +115,8 @@ class Database {
     return await this.update(plan);
   }
 }
+
+
 
 (async () => {
   try {

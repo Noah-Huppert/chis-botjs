@@ -17,7 +17,7 @@ function embed(title, spots, participants) {
       url: "https://chis.dev/chis-botjs/",
     })
     .addField(`Participants (${participants.length}/${spots})`, mention)
-    .addField(`Commands`, `/join, /leave, /view, /plan, /gather`)
+    .addField(`Slash Commands`, `/join, /leave, /view, /plan, /rename, /gather`)
     .setTimestamp()
     .setFooter({
       text: "server.chis.dev",

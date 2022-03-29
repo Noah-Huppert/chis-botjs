@@ -47,12 +47,13 @@ class Database {
   constructor(guildId) {
     this.guildId = guildId;
   }
-  async create(title, spots) {
+  async create(user,title, spots) {
     await this.delete();
     return await Plan.create({
       id: this.guildId,
       title: title,
       spots: spots,
+      participants: [user]
     });
   }
   async read() {
@@ -70,7 +71,7 @@ class Database {
 
   async join(user) {
     var plan = await this.read();
-    if (!plan) plan = await this.create();
+    if (!plan) return await this.create(user);
 
     const participants = Object.assign([], plan.participants);
     const spots = plan.spots;

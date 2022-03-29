@@ -6,7 +6,7 @@
   "configurations": [
     {
       "name": "Api",
-      "program": "${workspaceFolder}/api.js",
+      "program": "${workspaceFolder}/src/api.js",
       "request": "launch",
       "skipFiles": ["<node_internals>/**"],
       "type": "pwa-node"
@@ -14,7 +14,7 @@
 
     {
       "name": "Database",
-      "program": "${workspaceFolder}/database.js",
+      "program": "${workspaceFolder}/src/database.js",
       "request": "launch",
       "skipFiles": ["<node_internals>/**"],
       "type": "pwa-node"
@@ -24,7 +24,7 @@
       "request": "launch",
       "name": "Bot",
       "skipFiles": ["<node_internals>/**"],
-      "program": "${workspaceFolder}/bot.js",
+      "program": "${workspaceFolder}/src/bot.js",
       "outFiles": ["${workspaceFolder}/**/*.js"]
     }
   ]

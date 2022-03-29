@@ -24,6 +24,7 @@ const data = new SlashCommandBuilder()
 
 // On Interaction Event
 async function run(interaction) {
+  const user = interaction.user;
   const title =
     interaction.options.getString("title") ||
     ":notebook_with_decorative_cover: Game Plan";
@@ -53,7 +54,7 @@ async function run(interaction) {
   });
 
   // Join Plan
-  data.create(title, spots).then(async (plan) => {
+  data.create(user.id, title, spots).then(async (plan) => {
     // Send Embed
     await interaction.reply({
       embeds: [embed(plan.title, plan.spots, plan.participants)],

@@ -32,6 +32,6 @@ docker-compose up docker-compose.yaml
 ```
 
 
-*More Information at [chis.dev](https://chis.dev/chis-bot/).*
+*More Information at [chis.dev](https://chis.dev/chis-botjs/).*
  
 

@@ -14,10 +14,10 @@ function embed(title, spots, participants) {
       name: "Chis Bot",
       iconURL:
         "https://cdn.discordapp.com/app-icons/724657775652634795/22a8bc7ffce4587048cb74b41d2a7363.png?size=512",
-      url: "https://chis.dev/chis-bot/",
+      url: "https://chis.dev/chis-botjs/",
     })
     .addField(`Participants (${participants.length}/${spots})`, mention)
-    .addField(`Commands`, `/join, /leave, /view, /plan`)
+    .addField(`Commands`, `/join, /leave, /view, /plan, /gather`)
     .setTimestamp()
     .setFooter({
       text: "server.chis.dev",

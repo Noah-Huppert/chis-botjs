@@ -40,7 +40,7 @@ function embed(service, state) {
       name: "Chis Bot",
       iconURL:
         "https://cdn.discordapp.com/app-icons/724657775652634795/22a8bc7ffce4587048cb74b41d2a7363.png?size=512",
-      url: "https://chis.dev/chis-bot/",
+      url: "https://chis.dev/chis-botjs/",
     })
     .setDescription("Thank you for using my bot :)")
     .addField("Service", service, true)

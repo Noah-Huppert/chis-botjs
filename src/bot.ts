@@ -5,7 +5,7 @@ import fs from "node:fs";
 import dotenv from "dotenv";
 import { changeStatus } from "./utils";
 import { createLogger, transports, format } from "winston";
-import moment from "moment";
+import moment from "moment-timezone";
 
 // Environment Vars
 dotenv.config();
@@ -19,7 +19,7 @@ const develop = process.env.DEVELOP!;
 export const logger = createLogger({
   level: "info",
   format: format.combine(
-    format.timestamp({ format: moment().format("YYYY-MM-DD hh:mm:ss") }),
+    format.timestamp({ format: moment().tz("America/New_York").format() }),
     format.printf(({ timestamp, level, message }) => {
       return `[${timestamp}] ${level}: ${message}`;
     })

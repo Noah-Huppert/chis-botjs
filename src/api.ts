@@ -1,22 +1,21 @@
-const { REST } = require("@discordjs/rest");
-const { Routes } = require("discord-api-types/v9");
-const fs = require("node:fs");
-const dotenv = require("dotenv");
+import { REST } from "@discordjs/rest";
+import { Routes } from "discord-api-types/v9";
+import fs from "node:fs";
+import dotenv from "dotenv";
+import { logger } from "./bot";
 
 // Environment Vars
 dotenv.config();
-const token = process.env.DISCORD_TOKEN;
-const clientId = process.env.CLIENT_ID;
-const guildId = process.env.GUILD_ID;
+const token = process.env.DISCORD_TOKEN!;
+const clientId = process.env.CLIENT_ID!;
+const guildId = process.env.GUILD_ID!;
 
 // Rest API
 const rest = new REST({ version: "9" }).setToken(token);
 
 // Command Files
-const commands = [];
-const commandFiles = fs
-  .readdirSync(`${__dirname}/commands`)
-  .filter((file) => file.endsWith(".js"));
+const commands: string[] = [];
+const commandFiles = fs.readdirSync(`${__dirname}/commands`);
 
 // Load Commands
 async function loadApplicationCommands() {
@@ -28,13 +27,13 @@ async function loadApplicationCommands() {
   }
 
   try {
-    console.log("Started refreshing application (/) commands.");
+    logger.info("Started refreshing application (/) commands.");
 
     // Global Application Commands Delete
-    rest.get(Routes.applicationCommands(clientId)).then((data) => {
+    rest.get(Routes.applicationCommands(clientId)).then((data: any) => {
       const promises = [];
       for (const command of data) {
-        const deleteUrl = `${Routes.applicationCommands(clientId)}/${
+        const deleteUrl: any = `${Routes.applicationCommands(clientId)}/${
           command.id
         }`;
         promises.push(rest.delete(deleteUrl));
@@ -48,7 +47,7 @@ async function loadApplicationCommands() {
       });
     }
 
-    console.log("Successfully reloaded application (/) commands.");
+    logger.info("Successfully reloaded application (/) commands.");
   } catch (error) {
     console.error(error);
   }

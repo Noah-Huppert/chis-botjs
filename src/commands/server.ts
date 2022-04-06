@@ -1,13 +1,23 @@
-const { SlashCommandBuilder } = require("@discordjs/builders");
-const { MessageEmbed } = require("discord.js");
-const { exec } = require("child_process");
-const { changeStatus } = require("../utils");
+import { SlashCommandBuilder } from "@discordjs/builders";
+import { CommandInteraction, MessageEmbed } from "discord.js";
+import { exec } from "child_process";
+import { changeStatus } from "../utils";
+import { logger } from "../bot";
 
 // Production Ready flag
-const stable = true;
+export const stable = true;
+
+// Services
+export const services = [
+  "7dtd",
+  "valheim",
+  "minecraft",
+  "csgo",
+  "satisfactory",
+];
 
 // Slash Command
-const data = new SlashCommandBuilder()
+export const data = new SlashCommandBuilder()
   .setName("server")
   .setDescription("Start/stop a service on [server.chis.dev]")
   .setDefaultPermission(false)
@@ -20,6 +30,7 @@ const data = new SlashCommandBuilder()
       .addChoice("Valheim (PW: jrisawesome)", "valheim")
       .addChoice("Minecraft", "minecraft")
       .addChoice("CS:GO Bhop", "csgo")
+      .addChoice("Satisfactory", "satisfactory")
   )
   .addStringOption((option) =>
     option
@@ -31,7 +42,7 @@ const data = new SlashCommandBuilder()
   );
 
 // Embedded Message Reply
-function embed(service, state) {
+function embed(service: string, state: string) {
   return new MessageEmbed()
     .setColor("#FFC0CB")
     .setTitle("Game Servers")
@@ -54,22 +65,26 @@ function embed(service, state) {
 }
 
 // On Interaction Event
-async function run(interaction) {
-  const state = interaction.options.getString("state");
-  const service = interaction.options.getString("service");
+export async function run(interaction: CommandInteraction) {
+  const state = interaction.options.getString("state")!;
+  const service = interaction.options.getString("service")!;
+
+  logger.warn(
+    `${interaction.user.id}: ${interaction.user.username} is trying to ${state} ${service}.`
+  );
 
   // Docker Command
   exec(`docker ${state} ${service}`, (error, stdout, stderr) => {
     if (error) {
-      console.log(`error: ${error.message}`);
+      logger.error(`${error.message}`);
       return;
     }
     if (stderr) {
-      console.log(`stderr: ${stderr}`);
+      logger.info(`stderr: ${stderr}`);
       return;
     }
-    output = stdout;
-    console.log(`stdout: ${stdout}`);
+    const output = stdout;
+    logger.info(`stdout: ${stdout}`);
   });
   await interaction.reply({
     embeds: [embed(service, state)],
@@ -79,7 +94,3 @@ async function run(interaction) {
   // Check Status of Services
   await changeStatus(interaction.client);
 }
-
-exports.stable = stable;
-exports.data = data;
-exports.run = run;

@@ -1,27 +1,34 @@
-const { SlashCommandBuilder } = require("@discordjs/builders");
-const { MessageEmbed } = require("discord.js");
-const { Database } = require("../database");
-const { embed } = require("../utils");
+import { SlashCommandBuilder } from "@discordjs/builders";
+import { CommandInteraction, MessageEmbed } from "discord.js";
+import { Database } from "../database";
+import { embed } from "../utils";
 
-const stable = true;
+export const stable = true;
 
 // Slash Command
-const data = new SlashCommandBuilder()
-  .setName("view")
-  .setDescription("View the plan");
+export const data = new SlashCommandBuilder()
+  .setName("rename")
+  .setDescription("Rename the plan")
+  .addStringOption((option) =>
+    option.setName("title").setDescription("The new title").setRequired(true)
+  );
 
 // On Interaction Event
-async function run(interaction) {
-  // Establish Connection To Database
-  const data = new Database(interaction.guild.id);
+export async function run(interaction: CommandInteraction) {
+  const title = interaction.options.getString("title");
 
-  // Join Plan
-  data.read().then(async (plan) => {
-    if (plan) {
+  // Establish Connection To Database
+  const data = new Database(interaction.guild!.id);
+
+  // Rename Plan
+  data.rename(title).then(async (plan) => {
+    if (title != null && title.length) {
       // Delete Previous Message
-      interaction.guild.channels
-        .fetch(plan.channelId)
+      interaction
+        .guild!.channels.fetch(plan.channelId)
         .then(async (channel) => {
+          if (channel === null || !channel.isText()) return;
+
           channel.messages
             .fetch(plan.messageId)
             .then(async (message) => {
@@ -43,7 +50,8 @@ async function run(interaction) {
 
       // Save Last Message
       interaction.fetchReply().then(async (message) => {
-        console.log(message);
+        if (!("channelId" in message)) return;
+
         await data.lastMessage(message.channelId, message.id);
       });
     } else {
@@ -53,14 +61,10 @@ async function run(interaction) {
           new MessageEmbed()
             .setColor("RED")
             .setTitle(":warning: Warning")
-            .setDescription("Plan not created."),
+            .setDescription("Please provide a valid title."),
         ],
         ephemeral: true,
       });
     }
   });
 }
-
-exports.stable = stable;
-exports.data = data;
-exports.run = run;

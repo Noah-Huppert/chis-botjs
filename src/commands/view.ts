@@ -1,35 +1,29 @@
-const { SlashCommandBuilder } = require("@discordjs/builders");
-const { MessageEmbed } = require("discord.js");
-const { Database } = require("../database");
-const { embed } = require("../utils");
+import { SlashCommandBuilder } from "@discordjs/builders";
+import { CommandInteraction, MessageEmbed } from "discord.js";
+import { Database } from "../database";
+import { embed } from "../utils";
 
-const stable = true;
+export const stable = true;
 
 // Slash Command
-const data = new SlashCommandBuilder()
-  .setName("rename")
-  .setDescription("Rename the plan")
-  .addStringOption((option) =>
-    option
-      .setName("title")
-      .setDescription("The new title")
-      .setRequired(true)
-  );
+export const data = new SlashCommandBuilder()
+  .setName("view")
+  .setDescription("View the plan");
 
 // On Interaction Event
-async function run(interaction) {
-  const title = interaction.options.getString("title");
-
+async function run(interaction: CommandInteraction) {
   // Establish Connection To Database
-  const data = new Database(interaction.guild.id);
+  const data = new Database(interaction.guild!.id);
 
-  // Rename Plan
-  data.rename(title).then(async (plan) => {
-    if (title.length) {
+  // Join Plan
+  data.read().then(async (plan) => {
+    if (plan) {
       // Delete Previous Message
-      interaction.guild.channels
-        .fetch(plan.channelId)
+      interaction
+        .guild!.channels.fetch(plan.channelId)
         .then(async (channel) => {
+          if (channel === null || !channel.isText()) return;
+
           channel.messages
             .fetch(plan.messageId)
             .then(async (message) => {
@@ -51,7 +45,7 @@ async function run(interaction) {
 
       // Save Last Message
       interaction.fetchReply().then(async (message) => {
-        console.log(message);
+        if (!("channelId" in message)) return;
         await data.lastMessage(message.channelId, message.id);
       });
     } else {
@@ -61,14 +55,10 @@ async function run(interaction) {
           new MessageEmbed()
             .setColor("RED")
             .setTitle(":warning: Warning")
-            .setDescription("Please provide a valid title."),
+            .setDescription("Plan not created."),
         ],
         ephemeral: true,
       });
     }
   });
 }
-
-exports.stable = stable;
-exports.data = data;
-exports.run = run;

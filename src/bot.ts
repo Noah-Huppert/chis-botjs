@@ -13,13 +13,14 @@ const token = process.env.DISCORD_TOKEN!;
 const clientId = process.env.CLIENT_ID!;
 const guildId = process.env.GUILD_ID!;
 const accessRole = process.env.ROLE_ID!;
+const timezone = process.env.TIMEZONE!;
 const develop = process.env.DEVELOP!;
 
 // logging
 export const logger = createLogger({
   level: "info",
   format: format.combine(
-    format.timestamp({ format: moment().tz("America/New_York").format() }),
+    format.timestamp({ format: moment().tz(timezone).format() }),
     format.printf(({ timestamp, level, message }) => {
       return `[${timestamp}] ${level}: ${message}`;
     })

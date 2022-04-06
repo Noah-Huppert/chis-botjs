@@ -4,6 +4,7 @@ CLIENT_ID=
 GUILD_ID=
 ROLE_ID=
 DEVELOP=0
+TIMEZONE=America/New_York
 
 # Database
 DATABASE=chisbot

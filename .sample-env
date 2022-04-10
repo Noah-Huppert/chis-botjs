@@ -10,7 +10,7 @@ TIMEZONE=America/New_York
 DATABASE=chisbot
 POSTGRES_USER=username
 POSTGRES_PASSWORD=password
-POSTGRES_MULTIPLE_DATABASES="chisbot","chisbotdev"
+POSTGRES_MULTIPLE_DATABASES='"chisbot","chisbotdev"'
 
 # Develop: localhost, Production: database
 POSTGRES_HOST=localhost 

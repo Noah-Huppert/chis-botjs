@@ -25,10 +25,10 @@ Due to the [instability](https://gist.github.com/Rapptz/4a2f62751b9600a31a0d3c78
 
 ## Installation
 
-Create a `.env` file using [.env-sample](./.sample-env) as a template.
+Create a `.env-prod` file using [.env-sample](./.sample-env) as a template.
 
 ```bash
-docker-compose up docker-compose.yaml
+docker-compose up
 ```
 
 

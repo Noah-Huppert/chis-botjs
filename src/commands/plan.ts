@@ -60,20 +60,15 @@ export const buttons = {
 		}
 
 		const timeStr = moment.utc(plan.time, PLAN_TIME_FORMAT).tz(userTz).format("h:mm A z");
-		const embeds = [
-			new MessageEmbed()
-				.setColor("BLUE")
-				.setTitle(`⌚ ${plan.title} Time`)
-				.setDescription(`${plan.title} starts at ${timeStr}`),
-		];
+		const embed = new MessageEmbed()
+			.setColor("BLUE")
+			.setTitle(`⌚ ${plan.title} Time`)
+			.setDescription(`${plan.title} starts at ${timeStr}`);
 		if (!userHasSetTz) {
-			embeds.push(new MessageEmbed()
-				.setColor("YELLOW")
-				.setTitle("No User Timezone Set")
-				.setDescription(`Since you have not customized your timezone the \`${defaultTimezone}\` timezone was used.\nSet your timezone with the \`/timezone\` command.`));
+			embed.setFooter(`Using the ${defaultTimezone} timezone since you haven't set yours, set with /timezone`);
 		}
 		await interaction.followUp({
-			embeds: embeds,
+			embeds: [ embed ],
 			ephemeral: true,
 		});
 	},

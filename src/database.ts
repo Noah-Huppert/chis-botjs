@@ -246,7 +246,7 @@ export class Database {
 		// Oftset based on timezone
 		let cleanInputTime = "";
 		try {
-			cleanInputTime = userTime(timeInput).ISOString;
+			cleanInputTime = userTime(timeInput, { defaultTimeOfDay: "pm" }).ISOString;
 		} catch (e) {
 			return;
 		}

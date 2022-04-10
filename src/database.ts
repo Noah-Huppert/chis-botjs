@@ -1,5 +1,6 @@
 import { Sequelize, DataTypes, Model } from "sequelize";
 import dotenv from "dotenv";
+import moment from "moment-timezone";
 import { logger } from "./bot";
 
 // Database Environment Vars
@@ -17,11 +18,18 @@ const sequelize = new Sequelize(db, user, pass, {
 });
 
 // Construct Models
-class Plan extends Model {
-  declare id: number;
+export class Plan extends Model {
+  declare id: string;
   declare title: string;
   declare spots: number;
   declare participants: string[];
+	
+	/**
+	 * The time at which the plan will take place. Stored in UTC.
+	 * Format: HH:MM:SS
+	 */
+	declare time?: string;
+	
   declare messageId: string;
   declare channelId: string;
 }
@@ -29,28 +37,28 @@ class Plan extends Model {
 /**
  * Configures the timezone with which a user wishes to view times.
  */
-class UserTzConfig extends Model {
-    /**
-	* Unique identifier of timezone configuration entity.
-	*/
-    declare id: number;
+export class UserTzConfig extends Model {
+  /**
+	 * Unique identifier of timezone configuration entity.
+	 */
+  declare id: number;
 
-    /**
-	* Discord ID of the user to which the timezone configuration pertains.
-	*/
-    declare userId: string;
+  /**
+	 * Discord ID of the user to which the timezone configuration pertains.
+	 */
+  declare userId: string;
 
-    /**
-	* The timezone specifier string. Taken from MomentJS's list of timezones, which they say are sourced from: https://en.wikipedia.org/wiki/List_of_tz_database_time_zones
-	*/
-    declare timezone: string;
+  /**
+	 * The timezone specifier string. Taken from MomentJS's list of timezones, which they say are sourced from: https://en.wikipedia.org/wiki/List_of_tz_database_time_zones
+	 */
+  declare timezone: string;
 }
 
 // Initialize Plan
 Plan.init(
   {
     id: {
-      type: DataTypes.STRING,
+      type: DataTypes.TEXT,
       unique: true,
       allowNull: false,
       primaryKey: true,
@@ -70,6 +78,10 @@ Plan.init(
       defaultValue: [],
       allowNull: false,
     },
+		time: {
+			type: DataTypes.TEXT,
+			allowNull: true,
+		},
     messageId: DataTypes.TEXT,
     channelId: DataTypes.TEXT,
   },
@@ -79,19 +91,47 @@ Plan.init(
   }
 );
 
+UserTzConfig.init(
+  {
+	  id: {
+		  type: DataTypes.INTEGER,
+		  unique: true,
+		  allowNull: false,
+		  primaryKey: true,
+			autoIncrement: true,
+	  },
+	  userId: {
+		  type: DataTypes.STRING,
+		  allowNull: false,
+		  unique: true,
+	  },
+	  timezone: {
+		  type: DataTypes.STRING,
+		  allowNull: false,
+	  },
+  },
+  {
+    tableName: "user_tz_config",
+    sequelize, // passing the `sequelize` instance is required
+  }
+);
+
+export const PLAN_TIME_FORMAT = "H:mm:ss";
+
 // CRUD
 export class Database {
   guildId: any;
   constructor(guildId: any) {
     this.guildId = guildId;
   }
-  async create(user: string, title?: string, spots?: number) {
+  async create(user: string, title?: string, spots?: number, time?: moment.Moment | string) {
     await this.delete();
     return await Plan.create({
       id: this.guildId,
       title: title,
       spots: spots,
       participants: [user],
+			time: time !== undefined ? typeof time === "string" ? time : time.format(PLAN_TIME_FORMAT) : undefined,
     });
   }
   async read() {
@@ -152,6 +192,36 @@ export class Database {
 
     return await this.update(plan);
   }
+
+	/**
+	 * Update or create a user's timezone preference.
+	 */
+  async saveUserTz(userId: string, timezone: string): Promise<void> {
+		const userTzConfig = await UserTzConfig.findOne({ where: { userId } });
+		if (userTzConfig === null) {
+			// No config entry present
+			UserTzConfig.create({
+				userId,
+				timezone,
+			});
+			return;
+		}
+
+		userTzConfig.timezone = timezone;
+		await userTzConfig.save();
+	}
+
+	/**
+	 * @returns The stored timezone for the user or null if not set.
+	 */
+	async getUserTz(userId: string): Promise<string | null> {
+		const userTzConfig = await UserTzConfig.findOne({ where: { userId } });
+		if (userTzConfig === null) {
+			return null;
+		}
+
+		return userTzConfig.timezone;
+	}
 }
 
 (async () => {
@@ -161,6 +231,7 @@ export class Database {
 
     // Refresh Table (change to true to clear all data)
     if (parseInt(develop)) {
+			console.log("Force syncing database");
       await sequelize.sync({ force: true });
     } else {
       await sequelize.sync({ force: false });

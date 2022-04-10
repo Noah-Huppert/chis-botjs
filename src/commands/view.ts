@@ -1,7 +1,7 @@
 import { SlashCommandBuilder } from "@discordjs/builders";
 import { CommandInteraction, MessageEmbed } from "discord.js";
 import { Database } from "../database";
-import { embed } from "../utils";
+import { planMessage } from "../utils";
 
 export const stable = true;
 
@@ -38,10 +38,7 @@ async function run(interaction: CommandInteraction) {
         });
 
       // Send Embed
-      await interaction.reply({
-        embeds: [embed(plan.title, plan.spots, plan.participants)],
-        ephemeral: false,
-      });
+      await interaction.reply(planMessage(plan));
 
       // Save Last Message
       interaction.fetchReply().then(async (message) => {

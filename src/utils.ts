@@ -1,8 +1,18 @@
 import { MessageEmbed } from "discord.js";
 import { exec } from "child_process";
-import { Client } from "discord.js";
+import {
+	Client,
+	InteractionReplyOptions,
+	MessageActionRow,
+	MessageButton,
+} from "discord.js";
+import moment from "moment-timezone";
 import { logger } from "./bot";
 import { services } from "./commands/server";
+import {
+	Plan,
+	PLAN_TIME_FORMAT,
+} from "./database";
 
 export function embed(title: string, spots: number, participants: string[]) {
   var mention = "No one has joined the plan.";
@@ -29,6 +39,23 @@ export function embed(title: string, spots: number, participants: string[]) {
     });
 }
 
+/**
+ * @returns An embed setup to look like an error.
+ */
+export function statusEmbed({ level, title, message }: {
+	level: "error" | "warning" | "success",
+	title?: string,
+	message: string,
+}) {
+	const color = level === "error" ? "RED" : level === "warning" ? "YELLOW" : "GREEN";
+	const titleEmoji = level === "error" ? ":no_entry_sign:" : level === "warning" ? ":warning:": ":white_check_mark:";
+	const titleBody = title !== undefined ? title : level === "error" ? "Error" : level === "warning" ? "Warning": "Success";
+	return new MessageEmbed()
+	  .setColor(color)
+    .setTitle(`${titleEmoji} ${titleBody}`)
+    .setDescription(message);
+}
+
 export async function changeStatus(client: Client): Promise<void> {
   // Wait for Docker Service To Start/Stop
   const delay = (ms: number | undefined) =>
@@ -47,4 +74,36 @@ export async function changeStatus(client: Client): Promise<void> {
       }
     }
   );
+}
+
+/**
+ * The custom ID of the show time button.
+ */
+export const SHOW_PLAN_TIME_BUTTON_CUSTOM_ID = "SHOW_PLAN_TIME";
+
+/**
+ * Constructs a Discord message which shows a plan.
+ */
+export function planMessage(plan: Plan): InteractionReplyOptions {
+	let planTitle = plan.title;
+	const components = [];
+	if (plan.time !== null) {
+		if (moment.utc(plan.time, PLAN_TIME_FORMAT).isValid()) {
+			components.push(new MessageActionRow()
+				.addComponents(
+					new MessageButton()
+						.setCustomId(SHOW_PLAN_TIME_BUTTON_CUSTOM_ID)
+						.setEmoji("⌚")
+						.setLabel("Show Time")
+						.setStyle("SECONDARY")));
+		} else {
+			planTitle += ` @ ${plan.time}`;
+		}
+	}
+	
+  return {
+    embeds: [embed(planTitle, plan.spots, plan.participants)],
+		components: components,
+    ephemeral: false,
+  };
 }

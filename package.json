@@ -33,6 +33,7 @@
     "moment-timezone": "^0.5.34",
     "pg": "^8.7.3",
     "sequelize": "^6.17.0",
+    "user-time": "^1.0.5",
     "winston": "^3.7.2"
   },
   "devDependencies": {

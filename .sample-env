@@ -13,4 +13,4 @@ POSTGRES_PASSWORD=password
 POSTGRES_MULTIPLE_DATABASES='"chisbot","chisbotdev"'
 
 # Develop: localhost, Production: database
-POSTGRES_HOST=localhost 
+POSTGRES_HOST="database"

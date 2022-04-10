@@ -269,7 +269,6 @@ export class Database {
 
     // Refresh Table (change to true to clear all data)
     if (parseInt(develop)) {
-			console.log("Force syncing database");
       await sequelize.sync({ force: true });
     } else {
       await sequelize.sync({ force: false });

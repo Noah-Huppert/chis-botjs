@@ -1,7 +1,9 @@
 import { Sequelize, DataTypes, Model } from "sequelize";
 import dotenv from "dotenv";
 import moment from "moment-timezone";
+import userTime from "user-time";
 import { logger } from "./bot";
+import { timezone as defaultTimezone } from "./config";
 
 // Database Environment Vars
 dotenv.config();
@@ -10,6 +12,12 @@ const user = process.env.POSTGRES_USER!;
 const pass = process.env.POSTGRES_PASSWORD!;
 const host = process.env.POSTGRES_HOST!;
 const develop = process.env.DEVELOP!;
+
+/**
+ * Format of the Plan.time field.
+ * https://momentjscom.readthedocs.io/en/latest/moment/04-displaying/01-format/
+ */
+export const PLAN_TIME_FORMAT = "H:mm:ss";
 
 // Configure Database
 const sequelize = new Sequelize(db, user, pass, {
@@ -26,7 +34,7 @@ export class Plan extends Model {
 	
 	/**
 	 * The time at which the plan will take place. Stored in UTC.
-	 * Format: HH:MM:SS
+	 * The format is either {@link PLAN_TIME_FORMAT} or an arbitrary string which does not represent a computer known time (ex., "when we get back from the movie").
 	 */
 	declare time?: string;
 	
@@ -116,22 +124,20 @@ UserTzConfig.init(
   }
 );
 
-export const PLAN_TIME_FORMAT = "H:mm:ss";
-
 // CRUD
 export class Database {
   guildId: any;
   constructor(guildId: any) {
     this.guildId = guildId;
   }
-  async create(user: string, title?: string, spots?: number, time?: moment.Moment | string) {
+  async create(user: string, title?: string, spots?: number, time?: string) {
     await this.delete();
     return await Plan.create({
       id: this.guildId,
       title: title,
       spots: spots,
       participants: [user],
-			time: time !== undefined ? typeof time === "string" ? time : time.format(PLAN_TIME_FORMAT) : undefined,
+			time: time,
     });
   }
   async read() {
@@ -221,6 +227,38 @@ export class Database {
 		}
 
 		return userTzConfig.timezone;
+	}
+
+	/**
+	 * Given a vague user input time get a UTC time.
+	 * Takes into account the user's timezone.
+	 * @returns Moment in UTC formatted for the database if timeInput was valid, otherwise returns undefined.
+	 */
+	async  parseUserTimeInput(userId: string, timeInput: string): Promise<string | undefined> {
+		let utcTime = undefined;
+
+		// Find user's timezone or use default
+		let userTz = await this.getUserTz(userId);
+		if (userTz === null) {
+			userTz = defaultTimezone;
+		}
+
+		// Oftset based on timezone
+		let cleanInputTime = "";
+		try {
+			cleanInputTime = userTime(timeInput).ISOString;
+		} catch (e) {
+			return;
+		}
+
+		if (cleanInputTime.length > 0) {
+			const noTzTimeStr = moment(cleanInputTime).format(PLAN_TIME_FORMAT);
+			const userTzTime = moment.tz(noTzTimeStr, PLAN_TIME_FORMAT, userTz);
+			
+			return userTzTime.clone().utc().format(PLAN_TIME_FORMAT);
+		}
+
+		return;
 	}
 }
 

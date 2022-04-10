@@ -29,7 +29,6 @@ export const data = new SlashCommandBuilder()
 // Slash command options autocomplete
 export const autocomplete = {
   timezone: async (interaction: AutocompleteInteraction, input: string): Promise<void> => {
-		console.log(interaction.id);
 	  const matches = TZ_SEARCHER.search(input);
 	  matches.length = Math.min(matches.length, MAX_DISCORD_CHOICES);
 	  

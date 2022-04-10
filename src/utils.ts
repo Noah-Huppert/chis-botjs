@@ -10,6 +10,7 @@ import moment from "moment-timezone";
 import { logger } from "./bot";
 import { services } from "./commands/server";
 import {
+	Database,
 	Plan,
 	PLAN_TIME_FORMAT,
 } from "./database";

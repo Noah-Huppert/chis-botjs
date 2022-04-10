@@ -5,7 +5,6 @@ import {
 	MessageEmbed,
 } from "discord.js";
 import moment from "moment-timezone";
-import userTime from "user-time";
 import {
 	Database,
 	PLAN_TIME_FORMAT,
@@ -54,18 +53,27 @@ export const buttons = {
 		}
 
 		let userTz = await data.getUserTz(interaction.user.id);
+		let userHasSetTz = true;
 		if (userTz === null) {
+			userHasSetTz = false;
 			userTz = defaultTimezone;
 		}
 
 		const timeStr = moment.utc(plan.time, PLAN_TIME_FORMAT).tz(userTz).format("h:mm A z");
+		const embeds = [
+			new MessageEmbed()
+				.setColor("BLUE")
+				.setTitle(`⌚ ${plan.title} Time`)
+				.setDescription(`${plan.title} starts at ${timeStr}`),
+		];
+		if (!userHasSetTz) {
+			embeds.push(new MessageEmbed()
+				.setColor("YELLOW")
+				.setTitle("No User Timezone Set")
+				.setDescription(`Since you have not customized your timezone the \`${defaultTimezone}\` timezone was used.\nSet your timezone with the \`/timezone\` command.`));
+		}
 		await interaction.followUp({
-			embeds: [
-				new MessageEmbed()
-					.setColor("BLUE")
-					.setTitle("⌚ Plan Time")
-					.setDescription(`Plan starts at ${timeStr}`),
-			],
+			embeds: embeds,
 			ephemeral: true,
 		});
 	},
@@ -84,29 +92,7 @@ export async function run(interaction: CommandInteraction) {
   const data = new Database(interaction.guild!.id);
 
 	// Parse time based on user's timezone
-	let utcTime = undefined;
-	if (time !== null) {
-		// Verify time can be parsed
-		// Find user's timezone or use default
-		let userTz = await data.getUserTz(user.id);
-		if (userTz === null) {
-			userTz = defaultTimezone;
-		}
-
-		// Oftset based on timezone
-		let cleanInputTime = "";
-		try {
-			cleanInputTime = userTime(time).ISOString;
-		} catch (e) {
-			// Failed to parse input, not a real date
-		}
-
-		if (cleanInputTime.length > 0) {
-			const noTzTimeStr = moment(cleanInputTime).format(PLAN_TIME_FORMAT);
-			const userTzTime = moment.tz(noTzTimeStr, PLAN_TIME_FORMAT, userTz);
-			utcTime = userTzTime.clone().utc();
-		}
-	}
+	let utcTime = time !== null ? await data.parseUserTimeInput(user.id, time) : undefined;
 
   // Delete Previous Message
   data.read().then(async (plan) => {

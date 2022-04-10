@@ -16,7 +16,7 @@ const sequelize = new Sequelize(db, user, pass, {
   dialect: "postgres",
 });
 
-// Construct Model
+// Construct Models
 class Plan extends Model {
   declare id: number;
   declare title: string;
@@ -24,6 +24,26 @@ class Plan extends Model {
   declare participants: string[];
   declare messageId: string;
   declare channelId: string;
+}
+
+/**
+ * Configures the timezone with which a user wishes to view times.
+ */
+class UserTzConfig extends Model {
+    /**
+	* Unique identifier of timezone configuration entity.
+	*/
+    declare id: number;
+
+    /**
+	* Discord ID of the user to which the timezone configuration pertains.
+	*/
+    declare userId: string;
+
+    /**
+	* The timezone specifier string. Taken from MomentJS's list of timezones, which they say are sourced from: https://en.wikipedia.org/wiki/List_of_tz_database_time_zones
+	*/
+    declare timezone: string;
 }
 
 // Initialize Plan

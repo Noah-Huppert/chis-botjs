@@ -20,7 +20,13 @@ export const data = new SlashCommandBuilder()
       .setName("spots")
       .setDescription("The number of spots in the plan")
       .setRequired(false)
-  );
+									 )
+	.addStringOption((option) =>
+		option
+			.setName("time")
+			.setDescription("The time the plan will begin")
+			.setRequired(false)
+		);
 
 // On Interaction Event
 export async function run(interaction: CommandInteraction) {

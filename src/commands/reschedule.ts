@@ -87,7 +87,7 @@ export async function run(interaction: CommandInteraction) {
 	await data.update(plan);
 	
   // Send Embed
-  await interaction.followUp(planMessage(plan));
+  await interaction.followUp(await planMessage(plan));
 
   // Save Last Message
   interaction.fetchReply().then(async (message) => {

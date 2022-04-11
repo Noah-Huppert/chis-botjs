@@ -28,6 +28,12 @@ const sequelize = new Sequelize(db, user, pass, {
 // Construct Models
 export class Plan extends Model {
   declare id: string;
+
+		/**
+	 * The ID of the user who initially created the plan.
+	 */
+	declare creatorUserId: string;
+	
   declare title: string;
   declare spots: number;
   declare participants: string[];
@@ -71,6 +77,10 @@ Plan.init(
       allowNull: false,
       primaryKey: true,
     },
+		creatorUserId: {
+			type: DataTypes.TEXT,
+			allowNull: false,
+		},
     title: {
       type: DataTypes.TEXT,
       defaultValue: ":notebook_with_decorative_cover: Game Plan",
@@ -134,6 +144,7 @@ export class Database {
     await this.delete();
     return await Plan.create({
       id: this.guildId,
+			creatorUserId: user,
       title: title,
       spots: spots,
       participants: [user],

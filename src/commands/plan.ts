@@ -59,7 +59,7 @@ export const buttons = {
 			userTz = defaultTimezone;
 		}
 
-		const timeStr = moment.utc(plan.time, PLAN_TIME_FORMAT).tz(userTz).format("h:mm A z");
+		const timeStr = moment.utc(plan.time, PLAN_TIME_FORMAT).tz(userTz).format("h:mm A (z)");
 		const embed = new MessageEmbed()
 			.setColor("BLUE")
 			.setTitle(`⌚ ${plan.title} Time`)
@@ -114,7 +114,7 @@ export async function run(interaction: CommandInteraction) {
   // Join Plan
   data.create(user.id, title, spots, utcTime || time || undefined).then(async (plan) => {
     // Send Embed
-    await interaction.reply(planMessage(plan));
+    await interaction.reply(await planMessage(plan));
 
     // Save Last Message
     interaction.fetchReply().then(async (message) => {

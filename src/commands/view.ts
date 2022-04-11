@@ -38,7 +38,7 @@ async function run(interaction: CommandInteraction) {
         });
 
       // Send Embed
-      await interaction.reply(planMessage(plan));
+      await interaction.reply(await planMessage(plan));
 
       // Save Last Message
       interaction.fetchReply().then(async (message) => {

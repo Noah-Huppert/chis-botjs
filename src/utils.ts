@@ -12,8 +12,12 @@ import { services } from "./commands/server";
 import {
 	Database,
 	Plan,
+	UserTzConfig,
 	PLAN_TIME_FORMAT,
 } from "./database";
+import {
+	timezone as defaultTimezone,
+} from "./config";
 
 export function embed(title: string, spots: number, participants: string[]) {
   var mention = "No one has joined the plan.";
@@ -85,25 +89,39 @@ export const SHOW_PLAN_TIME_BUTTON_CUSTOM_ID = "SHOW_PLAN_TIME";
 /**
  * Constructs a Discord message which shows a plan.
  */
-export function planMessage(plan: Plan): InteractionReplyOptions {
-	let planTitle = plan.title;
+export async function planMessage(plan: Plan): Promise<InteractionReplyOptions> {
+	let title = plan.title;
+	
 	const components = [];
 	if (plan.time !== null) {
+		// Create timezone conversion button
 		if (moment.utc(plan.time, PLAN_TIME_FORMAT).isValid()) {
 			components.push(new MessageActionRow()
 				.addComponents(
 					new MessageButton()
 						.setCustomId(SHOW_PLAN_TIME_BUTTON_CUSTOM_ID)
 						.setEmoji("⌚")
-						.setLabel("Show Time")
+						.setLabel("Show Local Time")
 						.setStyle("SECONDARY")));
+		}
+
+		// Show time in title
+		const data = new Database(plan.id);
+		const userTz = await data.getUserTz(plan.creatorUserId) || defaultTimezone;
+
+		const parsedTime = moment.utc(plan.time, PLAN_TIME_FORMAT);
+		if (parsedTime.isValid()) {
+			// Time is a valid time
+			const timeStr = parsedTime.tz(userTz).format("h:mm A (z)");
+			title += ` @ ${timeStr}`;
 		} else {
-			planTitle += ` @ ${plan.time}`;
+			// Time is a string
+			title += ` @ ${plan.time}`;
 		}
 	}
 	
   return {
-    embeds: [embed(planTitle, plan.spots, plan.participants)],
+    embeds: [embed(title, plan.spots, plan.participants)],
 		components: components,
     ephemeral: false,
   };

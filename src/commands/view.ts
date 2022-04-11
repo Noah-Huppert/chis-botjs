@@ -11,7 +11,7 @@ export const data = new SlashCommandBuilder()
   .setDescription("View the plan");
 
 // On Interaction Event
-async function run(interaction: CommandInteraction) {
+export async function run(interaction: CommandInteraction) {
   // Establish Connection To Database
   const data = new Database(interaction.guild!.id);
 

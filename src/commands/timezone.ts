@@ -57,13 +57,13 @@ export async function run(interaction: CommandInteraction) {
   const tz = moment.tz.zone(timezoneArg);
 	if (tz === null) {
 		await interaction.followUp({
-        embeds: [
-					statusEmbed({
-						level: "error",
-						message: `\`${timezoneArg}\` is not a valid timezone`,
-					}),
-        ],
-        ephemeral: true,
+      embeds: [
+				statusEmbed({
+					level: "error",
+					message: `\`${timezoneArg}\` is not a valid timezone`,
+				}),
+      ],
+      ephemeral: true,
     });
 		return;
 	}

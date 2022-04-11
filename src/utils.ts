@@ -29,6 +29,23 @@ export function embed(title: string, spots: number, participants: string[]) {
     });
 }
 
+/**
+ * @returns An embed setup to look like an error.
+ */
+export function statusEmbed({ level, title, message }: {
+	level: "error" | "warning" | "success",
+	title?: string,
+	message: string,
+}) {
+	const color = level === "error" ? "RED" : level === "warning" ? "YELLOW" : "GREEN";
+	const titleEmoji = level === "error" ? ":no_entry_sign:" : level === "warning" ? ":warning:": ":white_check_mark:";
+	const titleBody = title !== undefined ? title : level === "error" ? "Error" : level === "warning" ? "Warning": "Success";
+	return new MessageEmbed()
+	  .setColor(color)
+    .setTitle(`${titleEmoji} ${titleBody}`)
+    .setDescription(message);
+}
+
 export async function changeStatus(client: Client): Promise<void> {
   // Wait for Docker Service To Start/Stop
   const delay = (ms: number | undefined) =>

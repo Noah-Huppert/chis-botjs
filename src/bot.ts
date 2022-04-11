@@ -109,14 +109,35 @@ client.on("ready", async () => {
 
 // Interaction Event Listener
 client.on("interactionCreate", async (interaction) => {
-  if (!interaction.isCommand()) return;
-  logger.warn(
-    `${interaction.user.id}: ${interaction.user.username} issued the ${interaction.commandName} command}.`
-  );
+    // Handle interaction
+    if (interaction.isCommand()) {
+	   // Interaction is a command
+	   logger.warn(
+		  `${interaction.user.id}: ${interaction.user.username} issued the ${interaction.commandName} command}.`
+	   );
 
-  if (commandFiles.includes(`${interaction.commandName}.ts`)) {
-    require(`./commands/${interaction.commandName}.ts`).run(interaction);
-  }
+	   if (commandFiles.includes(`${interaction.commandName}.ts`)) {
+		  await require(`./commands/${interaction.commandName}.ts`).run(interaction);
+	   }
+    } else if (interaction.isAutocomplete()) {
+	   // Interaction is an autocomplete event
+	   if (commandFiles.includes(`${interaction.commandName}.ts`)) {
+		  const cmdMod = require(`./commands/${interaction.commandName}.ts`);
+
+		  if ("autocomplete" in cmdMod) {
+			 // Autocomplete is configured for this command
+			 // Find the autocomplete handler for the specific option
+			 for (const optionName of Object.keys(cmdMod.autocomplete)) {
+				// The autocomplete interaction will have a value for the option's name if the autocomplete is for that option
+				const autocompleteInput = interaction.options.getString(optionName);
+				if (autocompleteInput !== null) {
+				    // This auto-complete event is for this option
+				    await cmdMod.autocomplete[optionName](interaction, autocompleteInput);
+				}
+			 }
+		  }
+	   }
+    }
 });
 
 client.login(process.env.DISCORD_TOKEN);

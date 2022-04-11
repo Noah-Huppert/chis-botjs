@@ -3,14 +3,14 @@ DISCORD_TOKEN=
 CLIENT_ID=
 GUILD_ID=
 ROLE_ID=
-DEVELOP=0
+DEVELOP=0 # Set to 1 if performing development
 TIMEZONE=America/New_York
 
 # Database
 DATABASE=chisbot
 POSTGRES_USER=username
 POSTGRES_PASSWORD=password
-POSTGRES_MULTIPLE_DATABASES="chisbot","chisbotdev"
+POSTGRES_MULTIPLE_DATABASES='"chisbot","chisbotdev"'
 
 # Develop: localhost, Production: database
-POSTGRES_HOST=localhost 
+POSTGRES_HOST="database"

@@ -13,21 +13,40 @@ import {
 	Database,
 	Plan,
 	UserTzConfig,
-	PLAN_TIME_FORMAT,
 } from "./database";
 import {
 	timezone as defaultTimezone,
 } from "./config";
 
-export function embed(title: string, spots: number, participants: string[]) {
+export function embed(title: string, spots: number, participants: string[], time?: number | string) {
   var mention = "No one has joined the plan.";
-  if (participants.length)
+
+	// Show time in title
+	let timeStr = "";
+	let startingIn = undefined;
+	if (typeof time === "number") {
+		// Epoch
+		timeStr = `<t:${time}:t>`;
+		startingIn = `<t:${time}:R>`;
+	} else if (typeof time === "string") {
+		timeStr = time;
+	}
+
+	let titleTime = "";
+	if (time !== undefined) {
+		titleTime = ` @ ${timeStr}`;
+	}
+
+	// Show participants
+  if (participants.length) {
     mention = participants
       .map((participant: string, x: number) => `${x + 1}. <@!${participant}>`)
       .join(`\n`);
-  return new MessageEmbed()
+	}
+	
+  const embed = new MessageEmbed()
     .setColor("PURPLE")
-    .setTitle(title)
+    .setTitle(`title${titleTime}`)
     .setAuthor({
       name: "Chis Bot",
       iconURL:
@@ -42,6 +61,12 @@ export function embed(title: string, spots: number, participants: string[]) {
       iconURL:
         "https://cdn.discordapp.com/avatars/219152343588012033/4c7053ce4c177cdab007d986c47b9410.webp?size=512",
     });
+
+	if (startingIn !== undefined) {
+		embed.addField("Starting In", startingIn);
+	}
+
+	return embed;
 }
 
 /**
@@ -93,9 +118,10 @@ export async function planMessage(plan: Plan): Promise<InteractionReplyOptions> 
 	let title = plan.title;
 	
 	const components = [];
-	if (plan.time !== null) {
+	let timeEpoch: string | number | undefined = undefined;
+	if (plan.time !== undefined) {
 		// Create timezone conversion button
-		if (moment.utc(plan.time, PLAN_TIME_FORMAT).isValid()) {
+		if (moment.unix(parseInt(plan.time, 10)).isValid()) {
 			components.push(new MessageActionRow()
 				.addComponents(
 					new MessageButton()
@@ -109,19 +135,15 @@ export async function planMessage(plan: Plan): Promise<InteractionReplyOptions> 
 		const data = new Database(plan.id);
 		const userTz = await data.getUserTz(plan.creatorUserId) || defaultTimezone;
 
-		const parsedTime = moment.utc(plan.time, PLAN_TIME_FORMAT);
+		const parsedTime = moment.unix(parseInt(plan.time, 10));
 		if (parsedTime.isValid()) {
 			// Time is a valid time
-			const timeStr = parsedTime.tz(userTz).format("h:mm A (z)");
-			title += ` @ ${timeStr}`;
-		} else {
-			// Time is a string
-			title += ` @ ${plan.time}`;
+			timeEpoch = parsedTime.valueOf()/100;
 		}
 	}
 	
   return {
-    embeds: [embed(title, plan.spots, plan.participants)],
+    embeds: [embed(plan.title, plan.spots, plan.participants, timeEpoch)],
 		components: components,
     ephemeral: false,
   };

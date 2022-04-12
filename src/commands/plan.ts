@@ -7,7 +7,6 @@ import {
 import moment from "moment-timezone";
 import {
 	Database,
-	PLAN_TIME_FORMAT,
 } from "../database";
 import {
 	SHOW_PLAN_TIME_BUTTON_CUSTOM_ID,
@@ -41,38 +40,38 @@ export const data = new SlashCommandBuilder()
 									);
 
 // Button handlers
-export const buttons = {
-	[SHOW_PLAN_TIME_BUTTON_CUSTOM_ID]: async (interaction: ButtonInteraction) => {
-		await interaction.deferReply();
+// export const buttons = {
+// 	[SHOW_PLAN_TIME_BUTTON_CUSTOM_ID]: async (interaction: ButtonInteraction) => {
+// 		await interaction.deferReply();
 		
-		const data = new Database(interaction.guild!.id);
+// 		const data = new Database(interaction.guild!.id);
 		
-		const plan = await data.read();
-		if (plan === null || plan.time === null) {
-			return;
-		}
+// 		const plan = await data.read();
+// 		if (plan === null || plan.time === null) {
+// 			return;
+// 		}
 
-		let userTz = await data.getUserTz(interaction.user.id);
-		let userHasSetTz = true;
-		if (userTz === null) {
-			userHasSetTz = false;
-			userTz = defaultTimezone;
-		}
+// 		let userTz = await data.getUserTz(interaction.user.id);
+// 		let userHasSetTz = true;
+// 		if (userTz === null) {
+// 			userHasSetTz = false;
+// 			userTz = defaultTimezone;
+// 		}
 
-		const timeStr = moment.utc(plan.time, PLAN_TIME_FORMAT).tz(userTz).format("h:mm A (z)");
-		const embed = new MessageEmbed()
-			.setColor("BLUE")
-			.setTitle(`⌚ ${plan.title} Time`)
-			.setDescription(`${plan.title} starts at ${timeStr}`);
-		if (!userHasSetTz) {
-			embed.setFooter(`Using the ${defaultTimezone} timezone since you haven't set yours, set with /timezone`);
-		}
-		await interaction.followUp({
-			embeds: [ embed ],
-			ephemeral: true,
-		});
-	},
-};
+// 		const timeStr = moment.utc(plan.time, PLAN_TIME_FORMAT).tz(userTz).format("h:mm A (z)");
+// 		const embed = new MessageEmbed()
+// 			.setColor("BLUE")
+// 			.setTitle(`⌚ ${plan.title} Time`)
+// 			.setDescription(`${plan.title} starts at ${timeStr}`);
+// 		if (!userHasSetTz) {
+// 			embed.setFooter(`Using the ${defaultTimezone} timezone since you haven't set yours, set with /timezone`);
+// 		}
+// 		await interaction.followUp({
+// 			embeds: [ embed ],
+// 			ephemeral: true,
+// 		});
+// 	},
+// };
 
 // On Interaction Event
 export async function run(interaction: CommandInteraction) {

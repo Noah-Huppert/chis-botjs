@@ -8,7 +8,6 @@ import moment from "moment-timezone";
 import userTime from "user-time";
 import {
 	Database,
-	PLAN_TIME_FORMAT,
 } from "../database";
 import {
 	SHOW_PLAN_TIME_BUTTON_CUSTOM_ID,

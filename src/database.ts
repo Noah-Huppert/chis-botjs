@@ -17,7 +17,7 @@ const develop = process.env.DEVELOP!;
  * Format of the Plan.time field.
  * https://momentjscom.readthedocs.io/en/latest/moment/04-displaying/01-format/
  */
-export const PLAN_TIME_FORMAT = "H:mm:ss";
+//export const PLAN_TIME_FORMAT = "X";//"H:mm:ss";
 
 // Configure Database
 const sequelize = new Sequelize(db, user, pass, {
@@ -257,16 +257,16 @@ export class Database {
 		// Oftset based on timezone
 		let cleanInputTime = "";
 		try {
-			cleanInputTime = userTime(timeInput, { defaultTimeOfDay: "pm" }).ISOString;
+			cleanInputTime = userTime(timeInput, { defaultTimeOfDay: "pm" }).formattedTime;
 		} catch (e) {
 			return;
 		}
 
 		if (cleanInputTime.length > 0) {
-			const noTzTimeStr = moment(cleanInputTime).format(PLAN_TIME_FORMAT);
-			const userTzTime = moment.tz(noTzTimeStr, PLAN_TIME_FORMAT, userTz);
+			const userTzTime = moment.tz(cleanInputTime, "h:m a", userTz);
+			console.log("cleanInputTime", cleanInputTime, userTzTime);
 			
-			return userTzTime.clone().utc().format(PLAN_TIME_FORMAT);
+			return (userTzTime.clone().utc().valueOf()/100).toString();
 		}
 
 		return;
